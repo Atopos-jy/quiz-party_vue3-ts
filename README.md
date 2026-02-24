@@ -31,12 +31,11 @@
 运行以下脚本，**Boom 💥** 你就可以开始玩了！
 
 ```shell
-$ yarn install # 或 npm install
-$ yarn dev # 或 npm run dev
+$ npm install
+$ npm run dev
 ```
 
 ## ✏ 待办事项
 
 - [X] ~~使用 Composition API~
-- 【】
 - [ ] 添加更多测验和角色
