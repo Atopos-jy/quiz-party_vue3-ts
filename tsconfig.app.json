@@ -11,6 +11,7 @@
       "@/*": ["./src/*"]
     },
     "allowJs": true,
+    "resolveJsonModule": true,
     "noImplicitAny": false
   }
 }

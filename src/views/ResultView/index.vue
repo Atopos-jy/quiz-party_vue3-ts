@@ -2,14 +2,14 @@
   <VModal :show="isModalOpen" @on-close="closeModal">
     <div class="character">
       <div class="character__avatar-box">
-        <img :src="character.image" :alt="character.name" class="character__avatar" />
+        <img :src="character?.image" :alt="character?.name" class="character__avatar" />
       </div>
 
-      <span class="character__name">{{ character.name }}</span>
+      <span class="character__name">{{ character?.name }}</span>
 
       <p class="character__summary">
-        您成功获得了角色 <span class="character__summary-bold">«{{ character.name }}»</span>！
-        {{ character.summary }}
+        您成功获得了角色 <span class="character__summary-bold">«{{ character?.name }}»</span>！
+        {{ character?.summary }}
       </p>
     </div>
 
@@ -27,7 +27,7 @@
   </DefaultLayout>
 </template>
 
-<script>
+<script setup lang="ts">
 import VModal from '@/components/VModal/index.vue';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 
@@ -35,65 +35,72 @@ import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 import characters from '@/assets/mock/characters.json';
 
 import { ref, computed, onBeforeMount } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router';
 
-export default {
-  name: 'ResultView',
+interface Character {
+  id?: number,
+  name: string,
+  image: string,
+  summary: string,
+  minimumScore: number, 
+}
 
-  components: {
-    VModal,
-    DefaultLayout,
-  },
+interface LeaderboardItem {
+  image: string,
+  name: string,
+  score: number,
+}
+const score = ref<number>(0)
+const isModalOpen = ref<boolean>(false)
+const router = useRouter()
 
-  setup() {
-    const score = ref(0);
-    const isModalOpen = ref(false);
-
-    const router = useRouter();
-
-    const character = computed(() => {
+const character = computed(() => {
       return characters.find((c) => score.value >= c.minimumScore);
     });
-
-    onBeforeMount(() => {
-      if (localStorage.getItem('score')) {
-        score.value = JSON.parse(localStorage.getItem('score'));
-      }
-    });
-
-    const openModal = () => {
-      isModalOpen.value = true;
-    };
-
-    const closeModal = () => {
-      isModalOpen.value = false;
-    };
-
-    const updateLeaderboard = (character) => {
-      let leaderboard = [];
-
-      if (localStorage.getItem('leaderboard')) {
-        leaderboard = JSON.parse(localStorage.getItem('leaderboard'));
-      }
-
-      leaderboard.push(character);
-      localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-    };
-
-    const onCharacterSubmited = () => {
-      updateLeaderboard({
-        image: character.value.image,
-        name: character.value.name,
-        score: score.value,
-      });
-
-      isModalOpen.value = false;
-      router.push('/');
-    };
-
-    return { score, isModalOpen, characters, character, openModal, closeModal, onCharacterSubmited };
-  },
+onBeforeMount(() => {
+  const storedScore = localStorage.getItem('score');
+  if (storedScore) {
+    score.value = JSON.parse(storedScore)
+  }
+})
+const openModal = (): void => {
+  isModalOpen.value = true;
 };
+
+const closeModal = (): void => {
+  isModalOpen.value = false;
+};
+
+/** 更新排行榜到 localStorage */
+const updateLeaderboard = (character: LeaderboardItem): void => {
+  let leaderboard: LeaderboardItem[] = [];
+  const storedLeaderboard = localStorage.getItem('leaderboard');
+  
+  if (storedLeaderboard) {
+    leaderboard = JSON.parse(storedLeaderboard) as LeaderboardItem[];
+  }
+
+  leaderboard.push(character);
+  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+};
+
+/** 接受角色按钮点击事件 */
+const onCharacterSubmited = (): void => {
+  if (!character.value) return;
+
+  updateLeaderboard({
+    image: character.value.image,
+    name: character.value.name,
+    score: score.value,
+  });
+
+  isModalOpen.value = false;
+  router.push('/');
+};
+
+defineOptions({
+  name: 'ResultView'
+});
 </script>
 
 <style src="./ResultView.scss" lang="scss" scoped />

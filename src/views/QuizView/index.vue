@@ -8,7 +8,7 @@
   <DefaultLayout class="quiz-view">
     <div class="timeout" :style="`width: ${width}%`"></div>
 
-    <h1 class="quiz-view__title">{{ quiz.title }}</h1>
+    <h1 class="quiz-view__title">{{ quiz?.title || '题目加载中' }}</h1>
 
     <div class="quizzes quiz-view__quizzes">
       <template v-for="answer in answers" :key="answer.id">
@@ -26,137 +26,160 @@
   </DefaultLayout>
 </template>
 
-<script>
+<script setup lang="ts">
+import { defineComponent, ref, computed, watch, onMounted, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 
 // Mock Api
 import quizzesList from '@/assets/mock/quizzes.json';
 
 // utils
-import { shuffleArray } from '@/utils/index.js';
+import { shuffleArray } from '@/utils/index';
 
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+interface QuizItem {
+  id: number;
+  title: string;
+}
 
-export default {
-  name: 'QuizView',
+interface QuizResponse {
+  win: string;
+  lose: string;
+}
 
-  components: {
-    DefaultLayout,
-  },
+interface Quiz {
+  title: string;
+  items: QuizItem[];
+  currectAnswer: number;
+  response: QuizResponse;
+}
 
-  setup() {
-    const step = ref(0);
-    const width = ref(100);
-    const timer = ref(null);
-    const statuses = ref([]);
+const step = ref(0);
+const width = ref(100);
+const timer: Ref<number | null> = ref(null);
+const statuses: Ref<string[]> = ref([]);
 
-    const router = useRouter();
+const router = useRouter();
 
-    const quizzes = computed(() => {
-      return shuffleArray(quizzesList);
-    });
+const quizzes = computed<Quiz[]>(() => {
+  // shuffleArray mutates the array, so we need to copy it first
+  return shuffleArray([...quizzesList] as unknown as Quiz[]);
+});
 
-    const quiz = computed(() => {
-      return quizzes.value[step.value];
-    });
+const quiz = computed<Quiz | undefined>(() => {
+  return quizzes.value[step.value];
+});
 
-    const answers = computed(() => {
-      return shuffleArray(quiz.value.items);
-    });
+const answers = computed<QuizItem[]>(() => {
+  if (!quiz.value) return [];
+  return shuffleArray([...quiz.value.items]);
+});
 
-    const statusText = computed(() => {
-      if (statuses.value[step.value] === 'timeout') {
-        return '时间到了！';
-      }
+const statusText = computed(() => {
+  if (!statuses.value[step.value]) return '';
+  
+  if (statuses.value[step.value] === 'timeout') {
+    return '时间到了！';
+  }
+  
+  if (!quiz.value) return '';
 
-      return statuses.value[step.value] === 'win' ? quiz.value.response.win : quiz.value.response.lose;
-    });
+  return statuses.value[step.value] === 'win' ? quiz.value.response.win : quiz.value.response.lose;
+});
 
-    const stopTimer = () => {
-      clearTimeout(timer.value);
-      timer.value = null;
-    };
-
-    const startTimer = () => {
-      if (width.value <= 0) {
-        return stopTimer();
-      }
-
-      width.value -= 1;
-      timer.value = setTimeout(startTimer, 100);
-    };
-
-    const calculateScore = () => {
-      let score = 0;
-
-      for (const status of statuses.value) {
-        if (status === 'win') score += 100;
-      }
-
-      const timeLeft = width.value / 10;
-      const finalScore = Math.floor(score * timeLeft);
-
-      return finalScore;
-    };
-
-    const changeStep = () => {
-      setTimeout(() => {
-        width.value = 100;
-
-        // Check if next step is available or not
-        if (step.value + 1 > quizzes.value.length - 1) {
-          localStorage.setItem('score', JSON.stringify(calculateScore()));
-
-          return router.push('/result');
-        }
-
-        step.value += 1;
-
-        startTimer();
-      }, 3000);
-    };
-
-    const onWin = () => {
-      statuses.value[step.value] = 'win';
-    };
-
-    const onLose = () => {
-      statuses.value[step.value] = 'lose';
-    };
-
-    const onTimeout = () => {
-      statuses.value[step.value] = 'timeout';
-    };
-
-    const checkAnswer = (answerId) => {
-      stopTimer();
-
-      quiz.value.currectAnswer === answerId ? onWin() : onLose();
-
-      changeStep();
-    };
-
-    const counterClasses = (counter) => {
-      if (statuses.value[counter]) {
-        return `quiz-counters__couter quiz-counters__couter--${statuses.value[counter]}`;
-      }
-
-      return `quiz-counters__couter quiz-counters__couter--${counter === step.value ? 'current' : 'normal'}`;
-    };
-
-    watch(width, (value) => {
-      if (value <= 0) {
-        onTimeout();
-        changeStep();
-      }
-    });
-
-    onMounted(startTimer);
-
-    return { step, width, statuses, quiz, quizzes, answers, statusText, checkAnswer, counterClasses };
-  },
+//倒计时
+const stopTimer = () => {
+  if (timer.value) {
+    clearTimeout(timer.value);
+    timer.value = null;
+  }
 };
+
+//启动/递归倒计时
+const startTimer = () => {
+  if (width.value <= 0) {
+    return stopTimer();
+  }
+
+  width.value -= 1;
+  timer.value = window.setTimeout(startTimer, 100);
+};
+
+//计分逻辑
+const calculateScore = () => {
+  let score = 0;
+
+  for (const status of statuses.value) {
+    if (status === 'win') score += 100;
+  }
+
+  const timeLeft = width.value / 10;
+  const finalScore = Math.floor(score * timeLeft);
+
+  return finalScore;
+};
+
+//下一题/结束判断逻辑
+const changeStep = () => {
+  setTimeout(() => {
+    width.value = 100;
+
+    // Check if next step is available or not
+    if (step.value + 1 > quizzes.value.length - 1) {
+      localStorage.setItem('score', JSON.stringify(calculateScore()));
+
+      return router.push('/result');
+    }
+
+    step.value += 1;
+
+    startTimer();
+  }, 3000);
+};
+
+//答题判断逻辑
+const onWin = () => {
+  statuses.value[step.value] = 'win';
+};
+
+const onLose = () => {
+  statuses.value[step.value] = 'lose';
+};
+
+const onTimeout = () => {
+  statuses.value[step.value] = 'timeout';
+};
+
+const checkAnswer = (answerId: number) => {
+  stopTimer();
+  
+  if (!quiz.value) return;
+
+  quiz.value.currectAnswer === answerId ? onWin() : onLose();
+
+  changeStep();
+};
+
+const counterClasses = (counter: number) => {
+  if (statuses.value[counter]) {
+    return `quiz-counters__couter quiz-counters__couter--${statuses.value[counter]}`;
+  }
+
+  return `quiz-counters__couter quiz-counters__couter--${counter === step.value ? 'current' : 'normal'}`;
+};
+
+watch(width, (value) => {
+  if (value <= 0) {
+    stopTimer(); // Ensure timer is stopped when timeout occurs
+    onTimeout();
+    changeStep();
+  }
+});
+
+onMounted(startTimer);
+defineExpose({
+  name: 'QuizView'
+})
 </script>
 
 <style src="./QuizView.scss" lang="scss" scoped />
