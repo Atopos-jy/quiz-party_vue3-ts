@@ -1,6 +1,6 @@
 <template>
   <Transition name="modal">
-    <div v-if="show" class="modal-wrapper">
+    <div v-if="$props.show" class="modal-wrapper" @click="handleWrapperClick">
       <div class="modal">
         <slot />
       </div>
@@ -8,55 +8,48 @@
   </Transition>
 </template>
 
-<script>
-import { toRef, watch } from 'vue';
+<script setup lang="ts">
+import { watch } from 'vue';
 
-export default {
-  name: 'VModal',
+const props = defineProps({
+  show: {
+    type: Boolean,
+    required: false,
+    default: true,
+  }
+})
+const emit = defineEmits(['on-close'])
 
-  props: {
-    show: {
-      type: String,
-      default: true,
-    },
-  },
-
-  setup(props, { emit }) {
-    const show = toRef(props, 'show');
-
-    const onClose = () => {
-      emit('on-close');
-    };
-
-    const onBackgroundClicked = (e) => {
-      const modalWrapper = document.querySelector('.modal-wrapper');
-
-      if (e.target === modalWrapper) {
-        onClose();
-      }
-    };
-
-    const onEscapeKeyClicked = (e) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    const watchHandler = (canShow) => {
-      if (canShow) {
-        document.addEventListener('keyup', onEscapeKeyClicked);
-        document.addEventListener('click', onBackgroundClicked);
-      } else {
-        document.removeEventListener('keyup', onEscapeKeyClicked);
-        document.removeEventListener('click', onBackgroundClicked);
-      }
-    };
-
-    watch(show, watchHandler, { immediate: true });
-
-    return { show, onBackgroundClicked, onEscapeKeyClicked };
-  },
+const onClose = () => {
+  emit('on-close');
 };
+
+const handleWrapperClick = (e: MouseEvent) => {
+  if (e.target === e.currentTarget) {
+    onClose();
+  }
+};
+
+const onEscapeKeyClicked = (e) => {
+  if (e.key === 'Escape') {
+    onClose();
+  }
+};
+watch(
+  () => props.show,
+  (canShow) => {
+    if (canShow) {
+      document.addEventListener('keyup', onEscapeKeyClicked);
+    } else {
+      document.removeEventListener('keyup', onEscapeKeyClicked);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({
+  name: 'VModal'
+})
 </script>
 
 <style src="./VModal.scss" lang="scss" scoped />

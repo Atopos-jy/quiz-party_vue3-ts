@@ -4,10 +4,10 @@
   </main>
 </template>
 
-<script>
-export default {
-  name: 'DefaultLayout',
-};
+<script setup lang="ts">
+defineOptions({
+  name: 'DefaultLayout'
+});
 </script>
 
 <style src="./DefaultLayout.scss" lang="scss" scoped />

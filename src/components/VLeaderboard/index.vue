@@ -21,21 +21,23 @@
   </section>
 </template>
 
-<script>
-export default {
-  name: 'VLeaderboard',
+<script setup lang="ts">
+interface LeaderboardItem {
+  image: string;
+  name: string;
+  score: number;
+}
 
-  props: {
-    leaderboard: {
-      type: Array,
-      required: true,
-    },
+const props = defineProps({
+  leaderboard: {
+    type: Array as () => LeaderboardItem[],
+    required: true,
   },
+});
 
-  setup(props) {
-    return { leaderboard: props.leaderboard };
-  },
-};
+defineOptions({
+  name: 'VLeaderboard'
+});
 </script>
 
 <style src="./VLeaderboard.scss" lang="scss" scoped />

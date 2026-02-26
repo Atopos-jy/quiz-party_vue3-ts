@@ -65,6 +65,8 @@ onBeforeMount(() => {
 })
 const openModal = (): void => {
   isModalOpen.value = true;
+  console.log('查看角色详情');
+  
 };
 
 const closeModal = (): void => {
