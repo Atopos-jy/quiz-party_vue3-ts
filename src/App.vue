@@ -2,13 +2,12 @@
   <RouterView />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
 import { RouterView } from 'vue-router';
 
-export default defineComponent({
-  name: 'QuizzoApp',
-});
+defineExpose({
+  name: 'QuizzoApp'
+})
 </script>
 
 <style src="@/assets/styles/App.scss" lang="scss" />
