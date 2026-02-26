@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## 趣问派对 (Quiz Party)
 一个基于 Vue3 的超好玩问答游戏！你可以挑战各种有趣的题目，测试你的知识储备！
 
@@ -39,3 +40,6 @@ $ npm run dev
 
 - [X] ~~使用 Composition API~
 - [ ] 添加更多测验和角色
+=======
+# quiz-party_vue3-ts
+>>>>>>> b3806f5c2ed4a0e2c0eed3a35890f4f8d0b9e2bc
