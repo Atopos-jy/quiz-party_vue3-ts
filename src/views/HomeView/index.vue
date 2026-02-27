@@ -9,29 +9,24 @@
   </DefaultLayout>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 import VLeaderboard from '@/components/VLeaderboard/index.vue';
-
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
-export default {
-  name: 'HomeView',
+interface LeaderboardItem {
+  image: string;
+  name: string;
+  score: number;
+}
 
-  components: {
-    VLeaderboard,
-    DefaultLayout,
-    RouterLink,
-  },
+const leaderboard: Ref<LeaderboardItem[]> = ref([]);
+leaderboard.value = localStorage.getItem('leaderboard') ? JSON.parse(localStorage.getItem('leaderboard') || '[]') : [];
 
-  setup() {
-    const leaderboard = ref([]);
-    leaderboard.value = localStorage.getItem('leaderboard') ? JSON.parse(localStorage.getItem('leaderboard') || '[]') : [];
-
-    return { leaderboard };
-  },
-};
+defineOptions({
+  name: 'HomeView'
+});
 </script>
 
 <style src="./HomeView.scss" lang="scss"/>

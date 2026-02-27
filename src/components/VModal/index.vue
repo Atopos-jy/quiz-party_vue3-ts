@@ -30,7 +30,7 @@ const handleWrapperClick = (e: MouseEvent) => {
   }
 };
 
-const onEscapeKeyClicked = (e) => {
+const onEscapeKeyClicked = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
     onClose();
   }

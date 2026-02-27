@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 
 // Views
 import HomeView from '@/views/HomeView/index.vue';
 const QuizView = () => import('@/views/QuizView/index.vue');
 const ResultView = () => import('@/views/ResultView/index.vue');
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: HomeView,
