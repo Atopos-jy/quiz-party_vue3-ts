@@ -31,19 +31,10 @@
 import VModal from '@/components/VModal/index.vue';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 
-// Mock Api
-import characters from '@/assets/mock/characters.json';
-
-import { ref, computed, onBeforeMount } from 'vue';
+import { getCharacters } from '@/api/character';
+import type { Character } from '@/api/character';
+import { ref, computed, onBeforeMount, onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
-
-interface Character {
-  id?: number,
-  name: string,
-  image: string,
-  summary: string,
-  minimumScore: number, 
-}
 
 interface LeaderboardItem {
   image: string,
@@ -53,9 +44,18 @@ interface LeaderboardItem {
 const score = ref<number>(0)
 const isModalOpen = ref<boolean>(false)
 const router = useRouter()
+const characters = ref<Character[]>([]);
 
+const fetchData = async(): Promise<boolean> => {
+    const res = await getCharacters();
+    const charactersList = res.data;
+    if (!Array.isArray(charactersList)) return false;
+
+    characters.value = charactersList;
+    return characters.value.length > 0;
+}
 const character = computed(() => {
-      return characters.find((c) => score.value >= c.minimumScore);
+      return characters.value.find((c) => score.value >= c.minimumScore);
     });
 onBeforeMount(() => {
   const storedScore = localStorage.getItem('score');
@@ -99,6 +99,9 @@ const onCharacterSubmited = (): void => {
   isModalOpen.value = false;
   router.push('/');
 };
+onMounted(async () => {
+  await fetchData();
+});
 
 defineOptions({
   name: 'ResultView'

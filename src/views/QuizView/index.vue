@@ -27,32 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref, computed, watch, onMounted, type Ref } from 'vue';
+import { ref, computed, watch, onMounted, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 
-// Mock Api
-import quizzesList from '@/assets/mock/quizzes.json';
-
+import { getQuizzes } from '@/api/quiz';
+import type { QuizItem, Quiz } from '@/api/quiz';
 // utils
 import { shuffleArray } from '@/utils/index';
-
-interface QuizItem {
-  id: number;
-  title: string;
-}
-
-interface QuizResponse {
-  win: string;
-  lose: string;
-}
-
-interface Quiz {
-  title: string;
-  items: QuizItem[];
-  currectAnswer: number;
-  response: QuizResponse;
-}
 
 const step = ref(0);
 const width = ref(100);
@@ -60,11 +42,16 @@ const timer: Ref<number | null> = ref(null);
 const statuses: Ref<string[]> = ref([]);
 
 const router = useRouter();
+const quizzes = ref<Quiz[]>([]);
 
-const quizzes = computed<Quiz[]>(() => {
-  // shuffleArray mutates the array, so we need to copy it first
-  return shuffleArray([...quizzesList] as unknown as Quiz[]);
-});
+const fetchData = async (): Promise<boolean> => {
+    const res = await getQuizzes();
+    const quizzesList = res.data;
+    if (!Array.isArray(quizzesList)) return false;
+
+    quizzes.value = shuffleArray([...quizzesList]);
+    return quizzes.value.length > 0;
+};
 
 const quiz = computed<Quiz | undefined>(() => {
   return quizzes.value[step.value];
@@ -176,7 +163,11 @@ watch(width, (value) => {
   }
 });
 
-onMounted(startTimer);
+onMounted(async () => {
+  const ok = await fetchData();
+  if (ok) startTimer();
+});
+
 defineExpose({
   name: 'QuizView'
 })
