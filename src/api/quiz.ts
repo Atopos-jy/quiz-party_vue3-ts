@@ -1,5 +1,4 @@
-import { request } from '@/utils/request';
-import type { ApiResponse } from '@/utils/http';
+import { http, type ApiResponse } from '@/utils/http';
 
 // 选项项接口
 export interface QuizItem {
@@ -23,5 +22,5 @@ export interface Quiz {
 
 // 获取题目列表接口
 export function getQuizzes() {
-  return request.get<ApiResponse<Quiz[]>>('/quizzes');
+  return http.get<ApiResponse<Quiz[]>>('/quizzes');
 }

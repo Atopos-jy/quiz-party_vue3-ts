@@ -6,9 +6,10 @@
       </div>
 
       <span class="character__name">{{ character?.name }}</span>
+      <span class="character__username" v-if="userName" style="display:block; margin-top: 5px; font-weight: bold;">玩家：{{ userName }}</span>
 
       <p class="character__summary">
-        您成功获得了角色 <span class="character__summary-bold">«{{ character?.name }}»</span>！
+        {{ userName }}，您成功获得了角色 <span class="character__summary-bold">«{{ character?.name }}»</span>！
         {{ character?.summary }}
       </p>
     </div>
@@ -18,7 +19,7 @@
 
   <DefaultLayout class="result-view">
     <h1 class="result-view__title">结束了！</h1>
-    <span class="result-view__description">恭喜！您在本次测验中获得了 {{ score }} 分！</span>
+    <span class="result-view__description">恭喜！{{ userName }} 在本次测验中获得了 {{ score }} 分！</span>
 
     <div class="result-view__actions">
       <button class="result-view__show-results" @click="openModal">查看结果</button>
@@ -45,6 +46,7 @@ const score = ref<number>(0)
 const isModalOpen = ref<boolean>(false)
 const router = useRouter()
 const characters = ref<Character[]>([]);
+const userName = ref(localStorage.getItem('userName') || '');
 
 const fetchData = async(): Promise<boolean> => {
     const res = await getCharacters();
@@ -92,7 +94,7 @@ const onCharacterSubmited = (): void => {
 
   updateLeaderboard({
     image: character.value.image,
-    name: character.value.name,
+    name: userName.value || character.value.name,
     score: score.value,
   });
 

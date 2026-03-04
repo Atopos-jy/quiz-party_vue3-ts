@@ -1,5 +1,4 @@
-import { request } from '@/utils/request';
-import type { ApiResponse } from '@/utils/http';
+import { http, type ApiResponse } from '@/utils/http';
 
 export interface Character {
   id?: number;
@@ -10,5 +9,5 @@ export interface Character {
 }
 
 export function getCharacters() {
-  return request.get<ApiResponse<Character[]>>('/characters');
+  return http.get<ApiResponse<Character[]>>('/characters');
 }
