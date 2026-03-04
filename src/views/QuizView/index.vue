@@ -27,40 +27,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, type Ref } from 'vue';
+import { ref, computed, onMounted, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
-
-import { getQuizzes } from '@/api/quiz';
-import type { QuizItem, Quiz } from '@/api/quiz';
-// utils
-import { shuffleArray } from '@/utils/index';
-
-const step = ref(0);
-const width = ref(100);
-const timer: Ref<number | null> = ref(null);
-const statuses: Ref<string[]> = ref([]);
+import { useCountdownTimer, useQuizFlow, useQuizzes, useQuizScore } from '@/hooks';
 
 const router = useRouter();
-const quizzes = ref<Quiz[]>([]);
+const step = ref(0);
+const statuses: Ref<string[]> = ref([]);
 
-const fetchData = async (): Promise<boolean> => {
-    const res = await getQuizzes();
-    const quizzesList = res.data;
-    if (!Array.isArray(quizzesList)) return false;
-
-    quizzes.value = shuffleArray([...quizzesList]);
-    return quizzes.value.length > 0;
-};
-
-const quiz = computed<Quiz | undefined>(() => {
-  return quizzes.value[step.value];
-});
-
-const answers = computed<QuizItem[]>(() => {
-  if (!quiz.value) return [];
-  return shuffleArray([...quiz.value.items]);
-});
+const { quizzes, quiz, answers, fetch } = useQuizzes(step);
 
 const statusText = computed(() => {
   if (!statuses.value[step.value]) return '';
@@ -73,43 +49,13 @@ const statusText = computed(() => {
 
   return statuses.value[step.value] === 'win' ? quiz.value.response.win : quiz.value.response.lose;
 });
-
-//倒计时
-const stopTimer = () => {
-  if (timer.value) {
-    clearTimeout(timer.value);
-    timer.value = null;
-  }
+const onTimeout = () => {
+  statuses.value[step.value] = 'timeout';
 };
-
-//启动/递归倒计时
-const startTimer = () => {
-  if (width.value <= 0) {
-    return stopTimer();
-  }
-
-  width.value -= 1;
-  timer.value = window.setTimeout(startTimer, 100);
-};
-
-//计分逻辑
-const calculateScore = () => {
-  let score = 0;
-
-  for (const status of statuses.value) {
-    if (status === 'win') score += 100;
-  }
-
-  const timeLeft = width.value / 10;
-  const finalScore = Math.floor(score * timeLeft);
-
-  return finalScore;
-};
-
 //下一题/结束判断逻辑
 const changeStep = () => {
   setTimeout(() => {
-    width.value = 100;
+    resetTimer();
 
     // Check if next step is available or not
     if (step.value + 1 > quizzes.value.length - 1) {
@@ -123,48 +69,24 @@ const changeStep = () => {
     startTimer();
   }, 3000);
 };
+const { width, startTimer, stopTimer, resetTimer } = useCountdownTimer(
+  100, // 初始宽度
+  onTimeout, // 结束回调
+  changeStep, // 切换步骤回调
+);
 
-//答题判断逻辑
-const onWin = () => {
-  statuses.value[step.value] = 'win';
-};
+const { calculateScore } = useQuizScore(statuses, width);
 
-const onLose = () => {
-  statuses.value[step.value] = 'lose';
-};
-
-const onTimeout = () => {
-  statuses.value[step.value] = 'timeout';
-};
-
-const checkAnswer = (answerId: number) => {
-  stopTimer();
-  
-  if (!quiz.value) return;
-
-  quiz.value.currectAnswer === answerId ? onWin() : onLose();
-
-  changeStep();
-};
-
-const counterClasses = (counter: number) => {
-  if (statuses.value[counter]) {
-    return `quiz-counters__couter quiz-counters__couter--${statuses.value[counter]}`;
-  }
-
-  return `quiz-counters__couter quiz-counters__couter--${counter === step.value ? 'current' : 'normal'}`;
-};
-
-watch(width, (value) => {
-  if (value <= 0) {
-    stopTimer(); // Ensure timer is stopped when timeout occurs
-    onTimeout();
-    changeStep();
-  }
+const { checkAnswer, counterClasses } = useQuizFlow({
+  step,
+  statuses,
+  quiz,
+  stopTimer,
+  nextStep: changeStep,
 });
 
 onMounted(async () => {
-  const ok = await fetchData();
+  const ok = await fetch();
   if (ok) startTimer();
 });
 
