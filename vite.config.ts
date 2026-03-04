@@ -41,6 +41,14 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "@/styles/variables.scss" as *; @use "@/styles/functions.scss" as *;',
+        },
+      },
+    },
+
     server: {
       proxy: {
         '/api': {

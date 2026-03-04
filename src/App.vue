@@ -10,4 +10,4 @@ defineExpose({
 })
 </script>
 
-<style src="@/assets/styles/App.scss" lang="scss" />
+<style src="@/styles/App.scss" lang="scss" />

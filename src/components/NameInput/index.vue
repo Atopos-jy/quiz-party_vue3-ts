@@ -1,16 +1,18 @@
 <template>
-  <!-- 姓名输入弹窗组件（ant-design-vue 版） -->
   <a-modal
+    class="nameinput-modal"
     :open="visible"
-    title="请输入您的姓名"
+    title="请给自己取一个好听的名字吧~🥰"
     width="400px"
     :maskClosable="false"
     :keyboard="false"
+    :centered="true"
     @cancel="handleCancel"
     @ok="handleConfirm"
   >
     <!-- 姓名输入表单 -->
     <a-form
+      class="name-form"
       :model="form"
       :rules="rules"
       ref="formRef"
@@ -18,37 +20,29 @@
     >
       <a-form-item
         name="name"
-        noStyle
+        class="name-form-item"
       >
         <a-input
           v-model:value="form.name"
           placeholder="请输入您的真实姓名"
           :maxlength="20"
           allowClear
-          show-count
           @pressEnter="handleConfirm"
         />
       </a-form-item>
     </a-form>
 
     <template #footer>
-      <a-button key="cancel" @click="handleCancel">取消</a-button>
-      <a-button
-        key="confirm"
-        type="primary"
-        :loading="loading"
-        @click="handleConfirm"
-      >
-        确认
-      </a-button>
+      <a-button key="confirm" :loading="loading" class="confirm-btn" @click="handleConfirm">确认</a-button>
     </template>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
-import { message } from 'ant-design-vue';
+import { ref, reactive, computed } from 'vue';
+import { getUserInfo } from '@/api/user';
 import type { FormInstance } from 'ant-design-vue';
+import  {nameFieldRules } from '@/config/form-rules';
 
 // 定义组件属性
 const props = defineProps({
@@ -72,7 +66,10 @@ const emit = defineEmits([
 ]);
 
 // 响应式数据
-const visible = ref(props.modelValue);
+const visible = computed({
+  get: () => props.modelValue,
+  set: (val: boolean) => emit('update:modelValue', val)
+});
 const loading = ref(false);
 const formRef = ref<FormInstance>();
 const form = reactive({
@@ -80,33 +77,7 @@ const form = reactive({
 });
 
 // 表单校验规则
-const rules = reactive({
-  name: [
-    { required: true, message: '请输入您的姓名！', trigger: 'blur' },
-    { pattern: /^[\u4e00-\u9fa5a-zA-Z]+$/, message: '姓名仅支持中文/英文！', trigger: 'blur' }
-  ]
-});
-
-// 监听 modelValue 变化，实现双向绑定
-watch(
-  () => props.modelValue,
-  (val) => {
-    visible.value = val;
-    // 弹窗打开时清空输入框
-    if (val) {
-      form.name = '';
-    }
-  },
-  { immediate: true }
-);
-
-// 监听弹窗自身显隐变化，同步给父组件
-watch(
-  () => visible.value,
-  (val) => {
-    emit('update:modelValue', val);
-  }
-);
+const rules = { name: nameFieldRules };
 
 // 取消按钮/弹窗关闭逻辑
 const handleCancel = () => {
@@ -116,32 +87,18 @@ const handleCancel = () => {
 
 // 确认提交逻辑
 const handleConfirm = async () => {
+  // 表单校验
+  await formRef.value?.validate();
+  
+  loading.value = true;
   try {
-    // 表单校验
-    await formRef.value?.validate();
-    loading.value = true;
-
-    // 模拟接口请求（可替换为真实业务逻辑）
-    setTimeout(() => {
-      loading.value = false;
-      message.success('姓名提交成功！');
-      // 向父组件传递输入的姓名
-      emit('confirm', form.name);
-      // 关闭弹窗
+      const res = await getUserInfo(form.name);
+      emit('confirm', res.data.username || form.name);
       handleCancel();
-    }, 800);
-  } catch (error) {
-    message.error('请正确填写姓名！');
+   } finally {
+    loading.value = false;
   }
 };
 </script>
 
-<style scoped>
-/* 自定义样式优化 */
-:deep(.ant-modal-body) {
-  padding-top: 20px;
-}
-:deep(.ant-input) {
-  width: 100%;
-}
-</style>
+<style src="./NameInput.scss" lang="scss" />

@@ -1,0 +1,32 @@
+/**
+ * Ant Design Vue 主题样式补充
+ * 主要通过 ConfigProvider 的 token 配置实现主题切换
+ * 这里只做一些细微的样式调整
+ */
+
+// ==================== 全局样式调整 ====================
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-checkbox,
+.ant-radio,
+.ant-switch {
+  transition: all 0.3s ease;
+}
+
+// ==================== 深色主题下的特殊处理 ====================
+html.dark {
+  // 确保弹出层在深色主题下正确显示
+  .ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.65);
+  }
+
+  // 滚动条样式
+  .ant-table-body::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}

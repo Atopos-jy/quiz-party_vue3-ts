@@ -10,6 +10,6 @@ export interface UserResponse {
   lastLoginTime?: string;
 }
 
-export function getUserInfo() {
-  return http.get<ApiResponse<UserResponse>>('/user');
+export function getUserInfo(username: string) {
+  return http.get<UserResponse>('/user', { username });
 }
