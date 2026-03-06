@@ -1,10 +1,12 @@
 <template>
-  <section id="leaderboard" class="leaderboard">
-    <div class="leaderboard__header">
-      <h2 class="leaderboard__title">用户排行榜</h2>
+  <section id="leaderboard" class="max-w-6xl mx-auto p-5">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-800">用户排行榜</h2>
       <a-tag color="blue">共 {{ total }} 条记录</a-tag>
     </div>
 
+    <!-- Table -->
     <a-table
       :columns="columns"
       :data-source="leaderboard"
@@ -38,7 +40,7 @@
 
         <!-- 用户名 -->
         <template v-if="column.dataIndex === 'username'">
-          <span class="username-text">{{ record.username }}</span>
+          <span class="font-medium text-blue-500">{{ record.username }}</span>
         </template>
 
         <!-- 角色 -->
@@ -48,17 +50,17 @@
 
         <!-- 分数 -->
         <template v-if="column.dataIndex === 'score'">
-          <span class="score-text">{{ record.score }} 分</span>
+          <span class="font-semibold text-orange-500">{{ record.score }} 分</span>
         </template>
 
         <!-- 提交时间 -->
         <template v-if="column.dataIndex === 'lastsubmitTime'">
-          <span class="time-text">{{ formatTime(record.lastsubmitTime) }}</span>
+          <span class="text-gray-500 text-sm">{{ formatTime(record.lastsubmitTime) }}</span>
         </template>
       </template>
 
       <template #emptyText>
-        <div class="empty-content">
+        <div class="py-10">
           <a-empty description="暂无排行榜数据~" />
         </div>
       </template>
@@ -187,4 +189,20 @@ defineOptions({
 });
 </script>
 
-<style src="./VLeaderboard.scss" lang="scss" scoped />
+<style scoped>
+/* 表格行 hover 效果 */
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: #f0f7ff !important;
+}
+
+/* 前3名行特殊背景色 */
+:deep(.ant-table-tbody > tr:nth-child(1) > td) {
+  background-color: #fffbeb !important;
+}
+:deep(.ant-table-tbody > tr:nth-child(2) > td) {
+  background-color: #f8fafc !important;
+}
+:deep(.ant-table-tbody > tr:nth-child(3) > td) {
+  background-color: #fff7ed !important;
+}
+</style>

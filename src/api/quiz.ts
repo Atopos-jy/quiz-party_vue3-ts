@@ -22,5 +22,5 @@ export interface Quiz {
 
 // 获取题目列表接口
 export function getQuizzes() {
-  return http.get<ApiResponse<Quiz[]>>('/quizzes');
+  return http.get<Quiz[]>('/quizzes');
 }

@@ -1,15 +1,8 @@
 import { ref, type Ref } from 'vue';
 
-/** 排行榜项接口（与后端接口一致） */
-export interface LeaderboardItem {
-  id: number;
-  username: string;
-  avatar: string;
-  score: number;
-  character: string;
-  rank: number;
-  lastsubmitTime: string;
-}
+// 从 rank.ts 导入统一的类型
+import type { RankListItem } from '@/api/rank';
+export type LeaderboardItem = RankListItem;
 
 /** localStorage 存储键名 */
 const LEADERBOARD_KEY = 'leaderboard';
@@ -20,7 +13,7 @@ const LEADERBOARD_KEY = 'leaderboard';
  */
 export const useLeaderboard = () => {
   // 1. 响应式状态：排行榜列表
-  const list: Ref<LeaderboardItem[]> = ref([]);
+  const list: Ref<RankListItem[]> = ref([]);
 
   // 2. 从 localStorage 加载数据（兼容旧格式数据转换）
   const load = (): void => {
@@ -28,16 +21,16 @@ export const useLeaderboard = () => {
       const storedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
       if (storedLeaderboard) {
         const parsed = JSON.parse(storedLeaderboard);
-        // 兼容旧格式数据转换：image->avatar, name->username
+        // 兼容旧格式数据转换：image->avatar, name->username, lastLoginTime->lastsubmitTime
         list.value = parsed.map((item: any, index: number) => ({
-          id: item.id || Date.now() + index,
+          id: item.id,
           username: item.username || item.name || '匿名用户',
           avatar: item.avatar || item.image || '',
           score: Number(item.score) || 0,
           character: item.character || '',
           rank: item.rank || index + 1,
-          lastsubmitTime: item.lastsubmitTime || item.lastLoginTime || new Date().toISOString().replace('T', ' ').substring(0, 19),
-        })) as LeaderboardItem[];
+          lastsubmitTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        })) as RankListItem[];
       }
     } catch (error) {
       console.error('加载排行榜数据失败:', error);

@@ -9,5 +9,5 @@ export interface Character {
 }
 
 export function getCharacters() {
-  return http.get<ApiResponse<Character[]>>('/characters');
+  return http.get<Character[]>('/characters');
 }

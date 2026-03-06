@@ -7,7 +7,7 @@ export interface UserResponse {
   phone?: string;
   email?: string;
   status?: number;
-  lastLoginTime?: string;
+  lastsubmitTime?: string;
   score?: number;
   rank?: number;
 }

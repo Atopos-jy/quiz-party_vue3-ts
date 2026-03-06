@@ -5,7 +5,7 @@
       <a class="header__link" @click="openNameInput">开始新测验</a>
     </header>
 
-    <VLeaderboard :leaderboard="leaderboard" class="leaderboard" />
+    <VLeaderboard :leaderboard="leaderboard" :loading="loading" />
     <NameInput v-model="isNameInputVisible" @confirm="handleNameConfirm" />
   </DefaultLayout>
 </template>
@@ -17,19 +17,26 @@ import NameInput from '@/components/NameInput/index.vue';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLocalStorage } from '@/hooks';
-import type { RankListItem } from '@/api/rank';
+import { getRankList, type RankListItem } from '@/api/rank';
 
 const router = useRouter();
 const leaderboard = ref<RankListItem[]>([]);
 const isNameInputVisible = ref(false);
+const loading = ref(false);
 
 // 使用封装的 Hook 读取本地排行榜数据
 const localLeaderboard = useLocalStorage<RankListItem[]>('leaderboard', []);
 
-// 从 localStorage 加载排行榜数据（静态展示）
-const loadLeaderboard = () => {
-  leaderboard.value = localLeaderboard.value;
-  console.log('本地排行榜数据:', leaderboard.value);
+// 从接口获取排行榜数据（携带本地数据供后端合并处理）
+// 错误处理已在 http.ts 中统一处理
+const fetchLeaderboard = async () => {
+  loading.value = true;
+  const res = await getRankList(1, 10, localLeaderboard.value);
+  console.log('排行榜接口响应:', res.data);
+  if (res.data && res.data.list && Array.isArray(res.data.list)) {
+    leaderboard.value = res.data.list;
+  }
+  loading.value = false;
 };
 
 const openNameInput = () => {
@@ -42,7 +49,7 @@ const handleNameConfirm = (name: string) => {
 };
 
 onMounted(() => {
-  loadLeaderboard();
+  fetchLeaderboard();
 });
 
 defineOptions({

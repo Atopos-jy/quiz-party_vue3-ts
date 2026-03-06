@@ -37,7 +37,7 @@ import { submitScore } from '@/api/rank';
 import { onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { useCharacters, useOpen, useLeaderboard, useLocalStorage } from '@/hooks';
-import type { LeaderboardItem } from '@/hooks/useLeaderboard';
+import type { RankListItem } from '@/api/rank';
 
 const router = useRouter();
 
@@ -62,7 +62,7 @@ const onCharacterSubmited = (): void => {
   const existingData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
   const newId = existingData.length + 1;
 
-  const newItem: LeaderboardItem = {
+  const newItem: RankListItem = {
     id: newId,
     username: userName.value,
     avatar: character.value.image,

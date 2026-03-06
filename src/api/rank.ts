@@ -22,6 +22,7 @@ export interface RankListItem {
 export interface RankListParams {
     page?: number;  // 页码，默认1
     PageSize?: number;  // 每页条数，默认10
+    leaderboard?: RankListItem[];
 }
 
 /** 获取排行榜的响应数据类型 */
@@ -33,8 +34,8 @@ export interface RankListResponse {
 }
   
 export function submitScore(score: number, username: string) {
-  return http.post<ApiResponse>('/user/score', { score, username });
+  return http.post<ScoreSubmitResponse>('/user/score', { score, username });
 }
 export function getRankList(page: number, pageSize: number, leaderboard: RankListItem[]) {
-  return http.post<ApiResponse<RankListResponse>>('/leaderboard', { page, pageSize, leaderboard });
+  return http.post<RankListResponse>('/leaderboard', { page, pageSize, leaderboard });
 }
