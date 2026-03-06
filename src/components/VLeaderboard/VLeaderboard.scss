@@ -1,48 +1,57 @@
 @use '@/styles/functions.scss' as *;
 
 .leaderboard {
-  padding: rem(24px);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 
-  &__leaders {
-    margin-top: rem(48px);
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
   }
 
-  &__empty {
-    margin-top: rem(16px);
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+    margin: 0;
   }
 }
 
-.leaders {
-  display: grid;
-  grid-gap: rem(24px);
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+.username-text {
+  font-weight: 500;
+  color: #1677ff;
 }
 
-.leader {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  border-radius: rem(16px);
-  padding: rem(32px) rem(64px);
-  background-color: var(--white);
-  border: 2px solid var(--primary);
+.score-text {
+  font-weight: 600;
+  color: #f50;
+}
 
-  &__image-box {
-    overflow: hidden;
-    width: rem(128px);
-    height: rem(128px);
-    border-radius: 50%;
-    border: 3px solid var(--primary);
-  }
+.time-text {
+  color: #666;
+  font-size: 14px;
+}
 
-  &__name {
-    font-size: rem(20px);
-    margin-top: rem(16px);
-  }
+.empty-content {
+  padding: 40px 0;
+}
 
-  &__score {
-    font-weight: 700;
-    font-size: rem(20px);
-    margin-top: rem(16px);
-  }
+// 表格行高亮
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: #f0f7ff !important;
+}
+
+// 前3名行特殊样式
+:deep(.ant-table-tbody > tr:nth-child(1) > td) {
+  background-color: #fffbeb !important;
+}
+:deep(.ant-table-tbody > tr:nth-child(2) > td) {
+  background-color: #f8fafc !important;
+}
+:deep(.ant-table-tbody > tr:nth-child(3) > td) {
+  background-color: #fff7ed !important;
 }
