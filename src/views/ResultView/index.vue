@@ -1,29 +1,64 @@
 <template>
   <VModal :show="isModalOpen" @on-close="closeModal">
-    <div class="character">
-      <div class="character__avatar-box">
-        <img :src="character?.image" :alt="character?.name" class="character__avatar" />
+    <!-- character: flex纵向居中布局 -->
+    <div class="flex flex-col items-center">
+      <!-- character__avatar-box: 圆形头像容器 -->
+      <div class="relative w-32 h-32 rounded-full overflow-hidden border-[3px] border-[var(--primary)]">
+        <!-- character__avatar: 绝对定位填充图片 -->
+        <img 
+          :src="character?.image" 
+          :alt="character?.name" 
+          class="absolute inset-0 w-full h-full object-cover" 
+        />
       </div>
 
-      <span class="character__name">{{ character?.name }}</span>
-      <span class="character__username" v-if="userName" style="display:block; margin-top: 5px; font-weight: bold;">玩家：{{ userName }}</span>
+      <!-- character__name: 角色名称 -->
+      <span class="font-bold text-[var(--black)] text-2xl mt-8">{{ character?.name }}</span>
+      
+      <!-- 玩家名称（内联样式保留原样） -->
+      <span v-if="userName" class="block mt-1.5 font-bold">玩家：{{ userName }}</span>
 
-      <p class="character__summary">
-        {{ userName }}，您成功获得了角色 <span class="character__summary-bold">«{{ character?.name }}»</span>！
+      <!-- character__summary: 居中灰色文字 -->
+      <p class="text-center text-[var(--gray)] mt-6">
+        {{ userName }}，您成功获得了角色 <span class="font-bold text-[var(--black)]">«{{ character?.name }}»</span>！
         {{ character?.summary }}
       </p>
     </div>
 
-    <button class="action" @click="onCharacterSubmited">接受角色</button>
+    <!-- action: 接受角色按钮 -->
+    <button 
+      class="w-full mt-12 py-4 px-6 bg-[var(--primary)] text-[var(--white)] font-bold text-sm rounded-lg cursor-pointer border border-[var(--primary)]" 
+      @click="onCharacterSubmited"
+    >
+      接受角色
+    </button>
   </VModal>
 
-  <DefaultLayout class="result-view">
-    <h1 class="result-view__title">结束了！</h1>
-    <span class="result-view__description">恭喜！{{ userName }} 在本次测验中获得了 {{ score }} 分！</span>
+  <!-- result-view: flex纵向居中布局，最小高度100vh -->
+  <DefaultLayout class="flex flex-col min-h-screen items-center justify-center">
+    <!-- result-view__title: 标题样式 -->
+    <h1 class="font-bold text-[var(--black)] text-[1.75rem]">结束了！</h1>
+    
+    <!-- result-view__description: 描述文字，顶部间距 -->
+    <span class="text-[var(--gray)] mt-4">恭喜！{{ userName }} 在本次测验中获得了 {{ score }} 分！</span>
 
-    <div class="result-view__actions">
-      <button class="result-view__show-results" @click="openModal">查看结果</button>
-      <RouterLink to="/quiz" class="result-view__retry">重试</RouterLink>
+    <!-- result-view__actions: 按钮组，顶部间距 -->
+    <div class="mt-14">
+      <!-- result-view__show-results: 查看结果按钮 -->
+      <button 
+        class="py-4 px-6 bg-[var(--primary)] text-[var(--white)] font-bold text-sm rounded-lg cursor-pointer border border-[var(--primary)]" 
+        @click="openModal"
+      >
+        查看结果
+      </button>
+      
+      <!-- result-view__retry: 重试链接 -->
+      <RouterLink 
+        to="/quiz" 
+        class="inline-block ml-4 py-4 px-6 text-[var(--primary)] font-bold text-sm rounded-lg border border-[var(--primary)]"
+      >
+        重试
+      </RouterLink>
     </div>
   </DefaultLayout>
 </template>
@@ -94,4 +129,12 @@ defineOptions({
 });
 </script>
 
-<style src="./ResultView.scss" lang="scss" scoped />
+<style lang="postcss" scoped>
+/* 
+  保留复杂样式：
+  :deep(.modal) 最大宽度限制
+*/
+:deep(.modal) {
+  max-width: 24rem;
+}
+</style>
