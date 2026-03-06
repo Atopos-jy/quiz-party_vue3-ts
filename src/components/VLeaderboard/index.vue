@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
       <h2 class="text-lg font-semibold text-gray-800">用户排行榜</h2>
-      <a-tag color="blue">共 {{ total }} 条记录</a-tag>
+      <a-tag color="blue">共 {{ props.total }} 条记录</a-tag>
     </div>
 
     <!-- Table -->
@@ -82,18 +82,39 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  total: {
+    type: Number,
+    default: 0
+  },
+  currentPage: {
+    type: Number,
+    default: 1
+  },
+  pageSize: {
+    type: Number,
+    default: 10
   }
 });
 
-// 计算属性：总记录数
-const total = computed(() => props.leaderboard.length);
+// 定义事件
+const emit = defineEmits(['pageChange']);
 
 // 分页配置
 const paginationConfig = computed(() => ({
-  current: 1,
-  pageSize: 10,
-  total: total.value,
+  current: props.currentPage,
+  pageSize: props.pageSize,
+  total: props.total,
   showTotal: (total: number) => `共 ${total} 条记录`,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  pageSizeOptions: ['5', '10', '20', '50'],
+  onChange: (page: number, pageSize: number) => {
+    emit('pageChange', page, pageSize);
+  },
+  onShowSizeChange: (current: number, size: number) => {
+    emit('pageChange', current, size);
+  },
 }));
 
 // 表格列配置

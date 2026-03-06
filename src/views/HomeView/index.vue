@@ -5,7 +5,14 @@
       <a class="header__link" @click="openNameInput">开始新测验</a>
     </header>
 
-    <VLeaderboard :leaderboard="leaderboard" :loading="loading" />
+    <VLeaderboard 
+          :leaderboard="leaderboard" 
+          :loading="loading"
+          :total="total"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          @page-change="handlePageChange"
+        />
     <NameInput v-model="isNameInputVisible" @confirm="handleNameConfirm" />
   </DefaultLayout>
 </template>
@@ -24,6 +31,11 @@ const leaderboard = ref<RankListItem[]>([]);
 const isNameInputVisible = ref(false);
 const loading = ref(false);
 
+// 分页状态
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
 // 使用封装的 Hook 读取本地排行榜数据
 const localLeaderboard = useLocalStorage<RankListItem[]>('leaderboard', []);
 
@@ -31,12 +43,20 @@ const localLeaderboard = useLocalStorage<RankListItem[]>('leaderboard', []);
 // 错误处理已在 http.ts 中统一处理
 const fetchLeaderboard = async () => {
   loading.value = true;
-  const res = await getRankList(1, 10, localLeaderboard.value);
+  const res = await getRankList(currentPage.value, pageSize.value, localLeaderboard.value);
   console.log('排行榜接口响应:', res.data);
   if (res.data && res.data.list && Array.isArray(res.data.list)) {
     leaderboard.value = res.data.list;
+    total.value = res.data.total || res.data.list.length;
   }
   loading.value = false;
+};
+
+// 分页切换事件
+const handlePageChange = (page: number, size: number) => {
+  currentPage.value = page;
+  pageSize.value = size;
+  fetchLeaderboard();
 };
 
 const openNameInput = () => {
