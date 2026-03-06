@@ -9,7 +9,6 @@ module.exports = {
   // 2. 主题配置（可选，自定义颜色/字体等）
   theme: {
     extend: {
-      // 新增自定义颜色（匹配你之前的排行榜样式）
       colors: {
         rank: {
           gold: '#f59e0b',    // 金牌色

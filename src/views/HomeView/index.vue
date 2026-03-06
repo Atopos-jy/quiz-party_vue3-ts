@@ -1,8 +1,13 @@
 <template>
   <DefaultLayout>
-    <header class="header">
-      <span class="header__text">准备好来一场小测验了吗？</span>
-      <a class="header__link" @click="openNameInput">开始新测验</a>
+    <header class="flex items-center justify-between py-6 px-8 bg-white rounded-lg shadow-sm mb-6">
+      <span class="text-xl font-semibold text-gray-800">准备好来一场小测验了吗？</span>
+      <a 
+        class="inline-flex items-center px-6 py-3 bg-[var(--primary)] hover:bg-red-600 text-white font-medium rounded-lg cursor-pointer transition-colors duration-200 shadow-sm hover:shadow-md" 
+        @click="openNameInput"
+      >
+        开始新测验
+      </a>
     </header>
 
     <VLeaderboard 
@@ -77,4 +82,3 @@ defineOptions({
 });
 </script>
 
-<style src="./HomeView.scss" lang="scss"/>

@@ -1,18 +1,18 @@
 <template>
   <Transition name="fade">
     <div v-if="statuses[step]" :class="`status status--${statuses[step]}`">
-      <span class="status__text">{{ statusText }}</span>
+      <span class="font-black text-[80px] animate-[show_0.5s_forward]">{{ statusText }}</span>
     </div>
   </Transition>
 
-  <DefaultLayout class="quiz-view">
+  <DefaultLayout class="flex flex-col min-h-screen">
     <div class="timeout" :style="`width: ${width}%`"></div>
 
-    <h1 class="quiz-view__title">{{ quiz?.title || '题目加载中' }}</h1>
+    <h1 class="font-bold text-black text-[2.75rem]">{{ quiz?.title || '题目加载中' }}</h1>
 
-    <div class="quizzes quiz-view__quizzes">
+    <div class="flex flex-wrap justify-center mt-[8rem]">
       <template v-for="answer in answers" :key="answer.id">
-        <div class="quiz" @click="checkAnswer(answer.id)">
+        <div class="quiz cursor-pointer" @click="checkAnswer(answer.id)">
           <span class="quiz__title">{{ answer.title }}</span>
         </div>
       </template>
