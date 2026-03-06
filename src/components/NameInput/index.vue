@@ -1,6 +1,5 @@
 <template>
   <a-modal
-    class="nameinput-modal"
     :open="visible"
     title="请给自己取一个好听的名字吧~🥰"
     width="400px"
@@ -12,15 +11,15 @@
   >
     <!-- 姓名输入表单 -->
     <a-form
-      class="name-form"
       :model="form"
       :rules="rules"
       ref="formRef"
       layout="vertical"
+      class="m-0"
     >
       <a-form-item
         name="name"
-        class="name-form-item"
+        class="mt-3"
       >
         <a-input
           v-model:value="form.name"
@@ -33,7 +32,14 @@
     </a-form>
 
     <template #footer>
-      <a-button key="confirm" :loading="loading" class="confirm-btn" @click="handleConfirm">确认</a-button>
+      <a-button 
+        key="confirm" 
+        :loading="loading" 
+        class="w-full h-11 rounded-lg bg-[var(--primary)] text-white !border-none" 
+        @click="handleConfirm"
+      >
+        确认
+      </a-button>
     </template>
   </a-modal>
 </template>
@@ -101,4 +107,67 @@ const handleConfirm = async () => {
 };
 </script>
 
-<style src="./NameInput.scss" lang="scss" />
+<style lang="postcss" scoped>
+/* 
+  Ant Design Vue 组件样式覆盖：
+  1. 弹窗内容区域样式
+  2. 弹窗头部样式
+  3. 弹窗标题样式
+  4. 弹窗主体和底部样式
+  5. 输入框样式
+*/
+
+/* 弹窗内容区域 */
+:deep(.ant-modal-content) {
+  border-radius: 1rem;
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  min-height: 220px;
+}
+
+/* 弹窗头部 */
+:deep(.ant-modal-header) {
+  border: none;
+  text-align: center;
+  min-height: 64px;
+}
+
+/* 弹窗标题 */
+:deep(.ant-modal-title) {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--black);
+  min-height: 42px;
+}
+
+/* 弹窗主体 */
+:deep(.ant-modal-body) {
+  padding: 0 1.5rem;
+}
+
+/* 弹窗底部 */
+:deep(.ant-modal-footer) {
+  border: none;
+  padding: 0 1.5rem;
+}
+
+/* 输入框容器 */
+:deep(.ant-input-affix-wrapper) {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200) !important;
+  box-shadow: none;
+}
+
+/* 输入框 */
+:deep(.ant-input-affix-wrapper .ant-input) {
+  height: 100%;
+  padding: 0;
+  border: none !important;
+  box-shadow: none;
+  background: transparent;
+}
+</style>
