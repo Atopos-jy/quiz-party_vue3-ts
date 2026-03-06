@@ -7,17 +7,18 @@ import { ref, watch, type Ref } from 'vue';
  * @returns { value } 响应式值（自动与 localStorage 同步）
  */
 export const useLocalStorage = <T>(key: string, defaultValue: T): Ref<T> => {
-  // 1. 从 localStorage 读取初始值
+  // 从 localStorage 读取初始值（兼容纯字符串存储的遗留数据）
   const getStoredValue = (): T => {
-    try {
-      const storedValue = localStorage.getItem(key);
-      if (storedValue) {
-        return JSON.parse(storedValue) as T;
-      }
-    } catch (error) {
-      console.error(`读取 localStorage 键 "${key}" 失败:`, error);
+    const storedValue = localStorage.getItem(key);
+    if (storedValue === null) {
+      return defaultValue;
     }
-    return defaultValue;
+    // 尝试解析为 JSON，失败则直接使用原值（兼容纯字符串存储的遗留数据）
+    try {
+      return JSON.parse(storedValue) as T;
+    } catch {
+      return storedValue as unknown as T;
+    }
   };
 
   // 2. 响应式状态

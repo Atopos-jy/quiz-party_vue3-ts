@@ -1,10 +1,14 @@
 import { ref, type Ref } from 'vue';
 
-/** 排行榜项接口 */
+/** 排行榜项接口（与后端接口一致） */
 export interface LeaderboardItem {
-  image: string;
-  name: string;
+  id: number;
+  username: string;
+  avatar: string;
   score: number;
+  character: string;
+  rank: number;
+  lastsubmitTime: string;
 }
 
 /** localStorage 存储键名 */
@@ -18,12 +22,22 @@ export const useLeaderboard = () => {
   // 1. 响应式状态：排行榜列表
   const list: Ref<LeaderboardItem[]> = ref([]);
 
-  // 2. 从 localStorage 加载数据
+  // 2. 从 localStorage 加载数据（兼容旧格式数据转换）
   const load = (): void => {
     try {
       const storedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
       if (storedLeaderboard) {
-        list.value = JSON.parse(storedLeaderboard) as LeaderboardItem[];
+        const parsed = JSON.parse(storedLeaderboard);
+        // 兼容旧格式数据转换：image->avatar, name->username
+        list.value = parsed.map((item: any, index: number) => ({
+          id: item.id || Date.now() + index,
+          username: item.username || item.name || '匿名用户',
+          avatar: item.avatar || item.image || '',
+          score: Number(item.score) || 0,
+          character: item.character || '',
+          rank: item.rank || index + 1,
+          lastsubmitTime: item.lastsubmitTime || item.lastLoginTime || new Date().toISOString().replace('T', ' ').substring(0, 19),
+        })) as LeaderboardItem[];
       }
     } catch (error) {
       console.error('加载排行榜数据失败:', error);

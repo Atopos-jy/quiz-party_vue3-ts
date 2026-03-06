@@ -31,78 +31,61 @@
 <script setup lang="ts">
 import VModal from '@/components/VModal/index.vue';
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
-
-import { getCharacters } from '@/api/character';
-import type { Character } from '@/api/character';
-import { ref, computed, onBeforeMount, onMounted } from 'vue';
+import type { ApiResponse } from '@/utils/http';
+import type { ScoreSubmitResponse } from '@/api/rank';
+import { submitScore } from '@/api/rank';
+import { onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
+import { useCharacters, useOpen, useLeaderboard, useLocalStorage } from '@/hooks';
+import type { LeaderboardItem } from '@/hooks/useLeaderboard';
 
-interface LeaderboardItem {
-  image: string,
-  name: string,
-  score: number,
-}
-const score = ref<number>(0)
-const isModalOpen = ref<boolean>(false)
-const router = useRouter()
-const characters = ref<Character[]>([]);
-const userName = ref(localStorage.getItem('userName') || '');
+const router = useRouter();
 
-const fetchData = async(): Promise<boolean> => {
-    const res = await getCharacters();
-    const charactersList = res.data;
-    if (!Array.isArray(charactersList)) return false;
+// 1. 用户名与分数的本地存储（响应式）
+const userName = useLocalStorage<string>('userName', '');
+const score = useLocalStorage<number>('score', 0);
 
-    characters.value = charactersList;
-    return characters.value.length > 0;
-}
-const character = computed(() => {
-      return characters.value.find((c) => score.value >= c.minimumScore);
-    });
-onBeforeMount(() => {
-  const storedScore = localStorage.getItem('score');
-  if (storedScore) {
-    score.value = JSON.parse(storedScore)
-  }
-})
-const openModal = (): void => {
-  isModalOpen.value = true;
-  console.log('查看角色详情');
-  
-};
+// 2. 角色数据获取与选取
+const { characters, character, fetch: fetchCharacters } = useCharacters(score);
 
-const closeModal = (): void => {
-  isModalOpen.value = false;
-};
+// 3. 弹窗显隐控制
+const { isOpen: isModalOpen, open: openModal, close: closeModal } = useOpen(false);
 
-/** 更新排行榜到 localStorage */
-const updateLeaderboard = (character: LeaderboardItem): void => {
-  let leaderboard: LeaderboardItem[] = [];
-  const storedLeaderboard = localStorage.getItem('leaderboard');
-  
-  if (storedLeaderboard) {
-    leaderboard = JSON.parse(storedLeaderboard) as LeaderboardItem[];
-  }
-
-  leaderboard.push(character);
-  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-};
+// 4. 排行榜存储（响应式同步 localStorage）
+const { add: addToLeaderboard } = useLeaderboard();
 
 /** 接受角色按钮点击事件 */
 const onCharacterSubmited = (): void => {
   if (!character.value) return;
 
-  updateLeaderboard({
-    image: character.value.image,
-    name: userName.value || character.value.name,
-    score: score.value,
-  });
+  // 获取当前排行榜数量，用于生成递增ID
+  const existingData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+  const newId = existingData.length + 1;
 
-  isModalOpen.value = false;
+  const newItem: LeaderboardItem = {
+    id: newId,
+    username: userName.value,
+    avatar: character.value.image,
+    score: score.value,
+    character: character.value.name,
+    rank: 0,
+    lastsubmitTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  };
+
+  addToLeaderboard(newItem);
+
+  closeModal();
   router.push('/');
 };
+
+const fetchData = async (): Promise<ApiResponse<ScoreSubmitResponse>> => {
+    const res = await submitScore(score.value, userName.value);
+    return res.data;
+  };
+
 onMounted(async () => {
   await fetchData();
+  await fetchCharacters();
 });
 
 defineOptions({

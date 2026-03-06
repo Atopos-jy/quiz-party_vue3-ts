@@ -8,6 +8,8 @@ export interface UserResponse {
   email?: string;
   status?: number;
   lastLoginTime?: string;
+  score?: number;
+  rank?: number;
 }
 
 export function getUserInfo(username: string) {

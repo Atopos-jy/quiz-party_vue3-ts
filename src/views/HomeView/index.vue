@@ -14,19 +14,23 @@
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 import VLeaderboard from '@/components/VLeaderboard/index.vue';
 import NameInput from '@/components/NameInput/index.vue';
-import { ref, type Ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
-interface LeaderboardItem {
-  image: string;
-  name: string;
-  score: number;
-}
+import { useLocalStorage } from '@/hooks';
+import type { RankListItem } from '@/api/rank';
 
 const router = useRouter();
-const leaderboard: Ref<LeaderboardItem[]> = ref([]);
-leaderboard.value = localStorage.getItem('leaderboard') ? JSON.parse(localStorage.getItem('leaderboard') || '[]') : [];
+const leaderboard = ref<RankListItem[]>([]);
 const isNameInputVisible = ref(false);
+
+// 使用封装的 Hook 读取本地排行榜数据
+const localLeaderboard = useLocalStorage<RankListItem[]>('leaderboard', []);
+
+// 从 localStorage 加载排行榜数据（静态展示）
+const loadLeaderboard = () => {
+  leaderboard.value = localLeaderboard.value;
+  console.log('本地排行榜数据:', leaderboard.value);
+};
 
 const openNameInput = () => {
   isNameInputVisible.value = true;
@@ -36,6 +40,10 @@ const handleNameConfirm = (name: string) => {
   localStorage.setItem('userName', name);
   router.push('/quiz');
 };
+
+onMounted(() => {
+  loadLeaderboard();
+});
 
 defineOptions({
   name: 'HomeView'

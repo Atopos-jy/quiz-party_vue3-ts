@@ -3,14 +3,16 @@
     <h2 class="leaderboard__title">排行榜</h2>
 
     <div v-if="leaderboard.length" class="leaders leaderboard__leaders">
-      <template v-for="(leader, index) in leaderboard" :key="index">
+      <template v-for="(leader, index) in leaderboard" :key="leader.id">
         <div class="leader">
           <div class="leader__image-box">
-            <img :src="leader.image" :alt="leader.name" class="leader__image" />
+            <img :src="leader.avatar" :alt="leader.username" class="leader__image" />
           </div>
 
-          <span class="leader__name">{{ leader.name }}</span>
+          <span class="leader__rank">#{{ leader.rank }}</span>
+          <span class="leader__name">{{ leader.username }}</span>
           <span class="leader__score">{{ leader.score }} 分</span>
+          <span class="leader__time">{{ leader.lastsubmitTime }}</span>
         </div>
       </template>
     </div>
@@ -22,15 +24,11 @@
 </template>
 
 <script setup lang="ts">
-interface LeaderboardItem {
-  image: string;
-  name: string;
-  score: number;
-}
+import type { RankListItem } from '@/api/rank';
 
 const props = defineProps({
   leaderboard: {
-    type: Array as () => LeaderboardItem[],
+    type: Array as () => RankListItem[],
     required: true,
   },
 });
