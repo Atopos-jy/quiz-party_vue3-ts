@@ -2,6 +2,7 @@ import { ref, type Ref } from 'vue';
 
 // 从 rank.ts 导入统一的类型
 import type { RankListItem } from '@/api/rank';
+import dayjs from 'dayjs';
 export type LeaderboardItem = RankListItem;
 
 /** localStorage 存储键名 */
@@ -21,15 +22,15 @@ export const useLeaderboard = () => {
       const storedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
       if (storedLeaderboard) {
         const parsed = JSON.parse(storedLeaderboard);
-        // 兼容旧格式数据转换：image->avatar, name->username, lastLoginTime->lastsubmitTime
+
         list.value = parsed.map((item: any, index: number) => ({
           id: item.id,
-          username: item.username || item.name || '匿名用户',
-          avatar: item.avatar || item.image || '',
+          username: item.username,
+          avatar: item.avatar,
           score: Number(item.score) || 0,
           character: item.character || '',
           rank: item.rank || index + 1,
-          lastsubmitTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
+          lastsubmitTime: item.lastsubmitTime || dayjs().format('YYYY-MM-DD HH:mm:ss'),
         })) as RankListItem[];
       }
     } catch (error) {

@@ -38,6 +38,7 @@ import { onMounted } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { useCharacters, useOpen, useLeaderboard, useLocalStorage } from '@/hooks';
 import type { RankListItem } from '@/api/rank';
+import dayjs from 'dayjs';
 
 const router = useRouter();
 
@@ -69,7 +70,7 @@ const onCharacterSubmited = (): void => {
     score: score.value,
     character: character.value.name,
     rank: 0,
-    lastsubmitTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    lastsubmitTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
   };
 
   addToLeaderboard(newItem);
@@ -80,7 +81,7 @@ const onCharacterSubmited = (): void => {
 
 const fetchData = async (): Promise<ApiResponse<ScoreSubmitResponse>> => {
     const res = await submitScore(score.value, userName.value);
-    return res.data;
+    return res;
   };
 
 onMounted(async () => {

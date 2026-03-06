@@ -55,7 +55,7 @@
 
         <!-- 提交时间 -->
         <template v-if="column.dataIndex === 'lastsubmitTime'">
-          <span class="text-gray-500 text-sm">{{ formatTime(record.lastsubmitTime) }}</span>
+          <span class="text-gray-500 text-sm">{{ record.lastsubmitTime }}</span>
         </template>
       </template>
 
@@ -73,14 +73,6 @@ import { computed } from 'vue';
 import { message } from 'ant-design-vue';
 import type { RankListItem } from '@/api/rank';
 import dayjs from 'dayjs';
-
-// 格式化时间
-const formatTime = (timeStr: string) => {
-  if (!timeStr) return '-';
-  const date = dayjs(timeStr);
-  if (!date.isValid()) return timeStr;
-  return date.format('YYYY-MM-DD HH:mm:ss');
-};
 const props = defineProps({
   leaderboard: {
     type: Array as () => RankListItem[],
