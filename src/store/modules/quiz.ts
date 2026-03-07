@@ -4,9 +4,7 @@ import { filterLeaderboard } from '@/utils/filterLeaderboard';
 import dayjs from 'dayjs';
 
 /**
- * ========================================
  * 通用存储 Store（替代 useLocalStorage）
- * ========================================
  */
 export const useCommonStore = defineStore('common', {
   state: () => ({
@@ -34,18 +32,10 @@ export const useCommonStore = defineStore('common', {
       this.score = 0;
     },
   },
-
-  persist: {
-    key: 'quiz_common',
-    storage: localStorage,
-    paths: ['username', 'theme', 'score'],
-  },
 });
 
 /**
- * ========================================
  * 排行榜 Store（替代 useLeaderboard）
- * ========================================
  */
 export const useLeaderboardStore = defineStore('leaderboard', {
   state: () => ({
@@ -102,7 +92,7 @@ export const useLeaderboardStore = defineStore('leaderboard', {
     add(item: RankListItem) {
       this.list.push(item);
       this.list = filterLeaderboard(this.list);
-      this.updateRanks();
+      this.sortAndRank();
     },
 
     /**
@@ -111,13 +101,13 @@ export const useLeaderboardStore = defineStore('leaderboard', {
     addBatch(items: RankListItem[]) {
       this.list.push(...items);
       this.list = filterLeaderboard(this.list);
-      this.updateRanks();
+      this.sortAndRank();
     },
 
     /**
-     * 更新排名
+     * 排序并更新排名
      */
-    updateRanks() {
+    sortAndRank() {
       this.list.sort((a, b) => b.score - a.score);
       this.list.forEach((item, index) => {
         item.rank = index + 1;
@@ -138,13 +128,7 @@ export const useLeaderboardStore = defineStore('leaderboard', {
      */
     removeByUsername(username: string) {
       this.list = this.list.filter(item => item.username !== username);
-      this.updateRanks();
+      this.sortAndRank();
     },
-  },
-
-  persist: {
-    key: 'quiz_leaderboard',
-    storage: localStorage,
-    paths: ['list'],
   },
 });

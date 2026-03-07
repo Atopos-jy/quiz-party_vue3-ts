@@ -18,8 +18,10 @@ import './styles/ant-theme.scss';
 import App from './App.vue';
 import router from '@/config/router';
 
-// 创建 Pinia 实例并注册持久化插件
+// 创建 Pinia 实例
 const pinia = createPinia();
+
+// 注册持久化插件
 pinia.use(piniaPluginPersistedstate);
 
 createApp(App)

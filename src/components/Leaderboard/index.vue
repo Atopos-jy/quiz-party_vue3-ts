@@ -2,8 +2,11 @@
   <section class="leaderboard">
     <h2 class="leaderboard-title">排行榜 ({{ list.length }}人)</h2>
     
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading">加载中...</div>
+    
     <!-- 排行榜列表 -->
-    <div class="leaderboard-list">
+    <div v-else class="leaderboard-list">
       <div
         v-for="(item, index) in sortedList"
         :key="item.id"
@@ -31,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useLeaderboardStore } from '@/store/modules/quiz';
 import type { RankListItem } from '@/api/rank';
 import dayjs from 'dayjs';
@@ -41,26 +44,14 @@ const store = useLeaderboardStore();
 
 // 本地响应式数据
 const list = computed(() => store.list);
+const loading = computed(() => store.loading);
 
 // 排序后的列表
-const sortedList = computed(() => {
-  return [...store.list].sort((a, b) => b.score - a.score);
-});
+const sortedList = computed(() => store.sortedList);
 
 // 组件挂载时加载数据
 onMounted(() => {
-  // 从 localStorage 加载数据
-  const stored = localStorage.getItem('quiz_leaderboard');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (parsed.list) {
-        store.list = parsed.list;
-      }
-    } catch (e) {
-      console.error('加载失败:', e);
-    }
-  }
+  store.load();
 });
 
 // 添加测试数据
@@ -75,13 +66,12 @@ const addTestData = () => {
     lastsubmitTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
   };
   
-  store.list.push(newItem);
+  store.add(newItem);
 };
 
 // 清空列表
 const clearList = () => {
-  store.list = [];
-  localStorage.removeItem('quiz_leaderboard');
+  store.clear();
 };
 </script>
 
