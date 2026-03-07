@@ -1,5 +1,5 @@
 <template>
-  <section id="leaderboard" class="max-w-6xl mx-auto p-5">
+  <section id="leaderboard" class="mx-auto">
     <!-- Header -->
     <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
       <h2 class="text-lg font-semibold text-gray-800">用户排行榜</h2>

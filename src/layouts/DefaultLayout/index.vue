@@ -1,5 +1,5 @@
 <template>
-  <main class="default-layout">
+  <main class="default-layout max-w-[1500px] mx-auto">
     <slot />
   </main>
 </template>
