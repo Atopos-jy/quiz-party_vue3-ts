@@ -1,7 +1,6 @@
 <template>
   <a-modal
     :open="visible"
-    title="请给自己取一个好听的名字吧~🥰"
     width="400px"
     :maskClosable="false"
     :keyboard="false"
@@ -9,7 +8,12 @@
     @cancel="handleCancel"
     @ok="handleConfirm"
   >
-  <span text-center>系统检测同名用户时，仅保留其最高分数对应提交时间作为排名依据</span>
+  <template #title><span class="text-2xl font-bold py-4">请给自己取一个好听的名字吧~🥰</span></template>
+  <div class="mb-4">
+    <p class="text-base text-gray-500 leading-relaxed">
+      <span class="font-semibold text-gray-700">提示：</span>系统检测同名用户时，仅保留其最高分数对应提交时间作为排名依据🙂
+    </p>
+  </div>
     <!-- 姓名输入表单 -->
     <a-form
       :model="form"

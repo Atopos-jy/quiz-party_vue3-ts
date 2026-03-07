@@ -55,7 +55,7 @@
 
         <!-- 提交时间 -->
         <template v-if="column.dataIndex === 'lastsubmitTime'">
-          <span class="text-gray-500 text-sm">{{ record.lastsubmitTime }}</span>
+          <span class="text-black text-base">{{ record.lastsubmitTime }}</span>
         </template>
       </template>
 
@@ -186,7 +186,7 @@ const getRankText = (rank: number, index: number) => {
   if (index === 0) return `🥇 ${realRank}`;
   if (index === 1) return `🥈 ${realRank}`;
   if (index === 2) return `🥉 ${realRank}`;
-  return `#${realRank}`;
+  return ` ${realRank}`;
 };
 
 // 获取排名徽章颜色

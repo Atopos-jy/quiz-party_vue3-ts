@@ -12,7 +12,7 @@
         :key="item.id"
         class="leaderboard-item"
       >
-        <span class="rank">#{{ index + 1 }}</span>
+        <span class="rank">###{{ index + 1 }}</span>
         <img :src="item.avatar" :alt="item.username" class="avatar" />
         <span class="username">{{ item.username }}</span>
         <span class="score">{{ item.score }} 分</span>

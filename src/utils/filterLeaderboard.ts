@@ -42,8 +42,13 @@ export function filterLeaderboard(list: RankListItem[]): RankListItem[] {
     }
   });
 
-  // 转换回数组，按 score 降序排序
-  return Array.from(userMap.values()).sort((a, b) => b.score - a.score);
+  // 转换回数组，按 score 降序排序，并添加 rank 字段
+  return Array.from(userMap.values())
+    .sort((a, b) => b.score - a.score)
+    .map((item, index) => ({
+      ...item,
+      rank: index + 1,
+    }));
 }
 
 /**
