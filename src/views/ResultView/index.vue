@@ -1,10 +1,7 @@
 <template>
   <VModal :show="isModalOpen" @on-close="closeModal">
-    <!-- character: flex纵向居中布局 -->
-    <div class="flex flex-col items-center">
-      <!-- character__avatar-box: 圆形头像容器 -->
+    <div class="flex flex-col items-center w-[400px]">
       <div class="relative w-32 h-32 rounded-full overflow-hidden border-[3px] border-[var(--primary)]">
-        <!-- character__avatar: 绝对定位填充图片 -->
         <img 
           :src="character?.image" 
           :alt="character?.name" 
@@ -12,20 +9,16 @@
         />
       </div>
 
-      <!-- character__name: 角色名称 -->
       <span class="font-bold text-[var(--black)] text-2xl mt-8">{{ character?.name }}</span>
       
-      <!-- 玩家名称（内联样式保留原样） -->
       <span v-if="userName" class="block mt-1.5 font-bold">玩家：{{ userName }}</span>
 
-      <!-- character__summary: 居中灰色文字 -->
       <p class="text-center text-[var(--gray)] mt-6">
         {{ userName }}，您成功获得了角色 <span class="font-bold text-[var(--black)]">«{{ character?.name }}»</span>！
         {{ character?.summary }}
       </p>
     </div>
 
-    <!-- action: 接受角色按钮 -->
     <button 
       class="w-full mt-12 py-4 px-6 bg-[var(--primary)] text-[var(--white)] font-bold text-sm rounded-lg cursor-pointer border border-[var(--primary)]" 
       @click="onCharacterSubmited"

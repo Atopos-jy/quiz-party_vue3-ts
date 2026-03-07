@@ -34,14 +34,12 @@
       <template v-for="(answer, index) in answers" :key="answer.id">
         <!-- 
           quiz: 答题选项卡片
-          复杂样式保留在<style>中：::before伪元素、counter-increment、nth-child(even)
+          样式说明：
+          - nth-child(even) 偏移在 <style> 中定义（实现左右分布）
+          - ::before 伪元素显示序号
         -->
         <div 
           class="quiz relative flex items-center text-[var(--black)] text-xl cursor-pointer transition-all duration-300 ease-out px-6 py-10 border-2 border-[#e5383b16] bg-[var(--white)] hover:border-[#e5383b48]"
-          :class="{
-            'mt-10 ml-12 max-xs:ml-0': index % 2 === 1,
-            'max-xs:mt-10': index > 0
-          }"
           @click="checkAnswer(answer.id)"
         >
           <span class="text-xl">{{ answer.title }}</span>
@@ -142,6 +140,24 @@ defineExpose({
   height: 8.5rem;
   border-radius: 0.25rem;
   counter-increment: quiz;
+}
+
+/* 偶数项偏移（实现左右分布） */
+.quiz:nth-child(even) {
+  margin-top: 2.5rem;
+  margin-left: 3rem;
+}
+
+/* 425px以下取消偶数项偏移，非首项添加顶部间距 */
+@media screen and (max-width: 425px) {
+  .quiz:nth-child(even) {
+    margin-top: 2.5rem;
+    margin-left: 0;
+  }
+  
+  .quiz:not(:first-child) {
+    margin-top: 2.5rem;
+  }
 }
 
 /* 序号圆圈伪元素 */
