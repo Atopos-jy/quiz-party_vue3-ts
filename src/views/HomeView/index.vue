@@ -26,35 +26,24 @@
 import DefaultLayout from '@/layouts/DefaultLayout/index.vue';
 import VLeaderboard from '@/components/VLeaderboard/index.vue';
 import NameInput from '@/components/NameInput/index.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useLocalStorage } from '@/hooks';
-import { getRankList, type RankListItem } from '@/api/rank';
+import { useLeaderboardStore } from '@/store/modules/quiz';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
-const leaderboard = ref<RankListItem[]>([]);
+const leaderboardStore = useLeaderboardStore();
+const { list: leaderboard, loading, total } = storeToRefs(leaderboardStore);
+
 const isNameInputVisible = ref(false);
-const loading = ref(false);
 
 // 分页状态
 const currentPage = ref(1);
 const pageSize = ref(10);
-const total = ref(0);
 
-// 使用封装的 Hook 读取本地排行榜数据
-const localLeaderboard = useLocalStorage<RankListItem[]>('leaderboard', []);
-
-// 从接口获取排行榜数据（携带本地数据供后端合并处理）
-// 错误处理已在 http.ts 中统一处理
+// 从 Store 获取排行榜数据（自动去重）
 const fetchLeaderboard = async () => {
-  loading.value = true;
-  const res = await getRankList(currentPage.value, pageSize.value, localLeaderboard.value);
-  console.log('排行榜接口响应:', res.data);
-  if (res.data && res.data.list && Array.isArray(res.data.list)) {
-    leaderboard.value = res.data.list;
-    total.value = res.data.total || res.data.list.length;
-  }
-  loading.value = false;
+  await leaderboardStore.fetchFromAPI(currentPage.value, pageSize.value);
 };
 
 // 分页切换事件

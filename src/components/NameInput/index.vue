@@ -9,6 +9,7 @@
     @cancel="handleCancel"
     @ok="handleConfirm"
   >
+  <span text-center>系统检测同名用户时，仅保留其最高分数对应提交时间作为排名依据</span>
     <!-- 姓名输入表单 -->
     <a-form
       :model="form"

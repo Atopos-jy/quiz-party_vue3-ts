@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import type { RankListItem } from '@/api/rank';
+import { getRankList } from '@/api/rank';
 import { filterLeaderboard } from '@/utils/filterLeaderboard';
 import dayjs from 'dayjs';
 
@@ -55,7 +56,7 @@ export const useLeaderboardStore = defineStore('leaderboard', {
 
   actions: {
     /**
-     * 加载数据（兼容旧格式）
+     * 从本地存储加载数据（兼容旧格式）
      */
     load() {
       this.loading = true;
@@ -81,6 +82,34 @@ export const useLeaderboardStore = defineStore('leaderboard', {
       } catch (error) {
         console.error('加载排行榜失败:', error);
         this.list = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * 从 API 获取排行榜数据（带分页和去重）
+     */
+    async fetchFromAPI(page = 1, pageSize = 10) {
+      this.loading = true;
+      try {
+        // 先加载本地数据
+        this.load();
+        
+        // 调用 API 获取数据
+        const res = await getRankList(page, pageSize, this.list);
+        
+        if (res.data && res.data.list && Array.isArray(res.data.list)) {
+          // 合并 API 数据和本地数据，然后去重
+          const combined = [...this.list, ...res.data.list];
+          this.list = filterLeaderboard(combined);
+          this.sortAndRank();
+        }
+        
+        return { list: this.list, total: this.list.length };
+      } catch (error) {
+        console.error('获取排行榜失败:', error);
+        return { list: this.list, total: this.list.length };
       } finally {
         this.loading = false;
       }
