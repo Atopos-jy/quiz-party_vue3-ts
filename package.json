@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.6",
-    "@types/node": "^25.3.1",
+    "@types/node": "^25.3.5",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.18",
